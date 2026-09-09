@@ -4,7 +4,7 @@
 // without needing AI Native's own window or table, which this plugin's
 // sandbox can never reach directly (a plugin cannot read another plugin's
 // data, installed alongside it or not — see
-// https://github.com/LDKTC/App-DraconDex/blob/main/docs/PLUGINS.md). Declaring
+// https://github.com/ZYDRAXYL/DraconDex-APP/blob/main/docs/PLUGINS.md). Declaring
 // AI Native under manifest `dependencies` gets it installed in the app the
 // first time this plugin is; the catalog content itself still only ever
 // travels as the public file this plugin fetches for itself, over the
@@ -14,7 +14,7 @@
 // older DraconDex with no pluginApi.net, still gets a fully working chat —
 // just without the app-context preamble.
 
-const CATALOG_URL = 'https://raw.githubusercontent.com/LDKTC/DraconDex-Plugin-Native/main/catalog.json';
+const CATALOG_URL = 'https://raw.githubusercontent.com/ZYDRAXYL/DraconDex-PGI-AINative/main/catalog.json';
 
 const hostNet = () => (window.pluginApi || window.extApi || {}).net || null;
 

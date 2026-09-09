@@ -1,7 +1,7 @@
-# DraconDex-Plugin-Codex
+# DraconDex-PGI-Codex
 
 A Codex (OpenAI) chat session for
-[DraconDex](https://github.com/LDKTC/App-DraconDex), docked in place of the
+[DraconDex](https://github.com/ZYDRAXYL/DraconDex-APP), docked in place of the
 Module Inspector.
 
 Install it, open any module, and a **🤖** button appears next to the Module
@@ -10,7 +10,7 @@ scoped to that module. It also runs as a standalone window if you'd rather have
 the room.
 
 This is the OpenAI sibling of
-[DraconDex-Plugin-Claude](https://github.com/LDKTC/DraconDex-Plugin-Claude) —
+[DraconDex-PGI-Claude](https://github.com/ZYDRAXYL/DraconDex-PGI-Claude) —
 same layout, same panel behaviour, different provider. Both can be installed at
 once; they use different plugin ids and therefore different tables.
 
@@ -18,7 +18,7 @@ once; they use different plugin ids and therefore different tables.
 > and works as a plain window (Settings → Plugin → Launch) — there is just no
 > button in the main window, because the panel API doesn't exist there yet.
 > **DraconDex 4.8.0+** additionally auto-installs
-> [AI Native](https://github.com/LDKTC/DraconDex-Plugin-Native) the first time
+> [AI Native](https://github.com/ZYDRAXYL/DraconDex-PGI-AINative) the first time
 > this plugin is installed (see [App context](#app-context-ai-native) below).
 > On older versions this plugin still installs and works exactly the same —
 > the app just doesn't know to look at the manifest's `dependencies` field
@@ -52,7 +52,7 @@ secret never leaves it, and access tokens are refreshed before they expire.
 
 > **The catch.** DraconDex's redirect receiver binds a **random** loopback port
 > — `http://127.0.0.1:<random>/callback`
-> ([`src/db/oauth-loopback.js`](https://github.com/LDKTC/App-DraconDex/blob/main/src/db/oauth-loopback.js)
+> ([`src/db/oauth-loopback.js`](https://github.com/ZYDRAXYL/DraconDex-APP/blob/main/src/db/oauth-loopback.js)
 > calls `srv.listen(0)`). A provider that requires one exact pre-registered
 > redirect URI will reject that, and OpenAI's own Codex client requires
 > `http://localhost:1455/auth/callback`. So this path works only with an OAuth
@@ -66,7 +66,7 @@ refresh token if you want it renewed automatically, and a ChatGPT account id if
 your token spans several workspaces. It is stored and used exactly like one
 obtained by signing in above. This plugin never runs the CLI itself — a plugin
 page has no process access to do that, by design (see
-[App-DraconDex's `docs/PLUGINS.md`](https://github.com/LDKTC/App-DraconDex/blob/main/docs/PLUGINS.md)
+[DraconDex-APP's `docs/PLUGINS.md`](https://github.com/ZYDRAXYL/DraconDex-APP/blob/main/docs/PLUGINS.md)
 §2.4) — it only accepts whatever token `codex login` already produced.
 
 If neither fits, use API key mode.
@@ -91,7 +91,7 @@ plugin's own tables each turn).
 ## App context (AI Native)
 
 This plugin declares
-[DraconDex-Plugin-Native](https://github.com/LDKTC/DraconDex-Plugin-Native)
+[DraconDex-PGI-AINative](https://github.com/ZYDRAXYL/DraconDex-PGI-AINative)
 ("AI Native") as a manifest `dependencies` entry, so installing this plugin
 auto-installs that one too (DraconDex 4.8.0+). AI Native publishes
 `catalog.json` — a small public file describing DraconDex's features and what
@@ -137,7 +137,7 @@ preamble.
     "net": ["https://api.openai.com", "https://auth.openai.com", "https://chatgpt.com", "https://raw.githubusercontent.com"],
     "context": ["module"]
   },
-  "dependencies": ["https://github.com/LDKTC/DraconDex-Plugin-Native"],
+  "dependencies": ["https://github.com/ZYDRAXYL/DraconDex-PGI-AINative"],
   "tables": [ "…" ]
 }
 ```
@@ -145,7 +145,7 @@ preamble.
 `panels` and `permissions` are the DraconDex 4.3.0 additions; `dependencies`
 is 4.8.0 (see [App context](#app-context-ai-native) above); everything else
 is the plugin format from 4.2.0. Full rules are in
-[App-DraconDex's `docs/PLUGINS.md`](https://github.com/LDKTC/App-DraconDex/blob/main/docs/PLUGINS.md).
+[DraconDex-APP's `docs/PLUGINS.md`](https://github.com/ZYDRAXYL/DraconDex-APP/blob/main/docs/PLUGINS.md).
 
 `permissions.context: ["module"]` lets the panel receive the open module's id,
 name and kind — enough to keep one conversation per module and to title it.

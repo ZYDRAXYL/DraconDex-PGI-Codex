@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Local pre-flight for dracondex-plugin.json — mirrors validateManifest in
-// App-DraconDex's src/db/plugin-manifest.js, so a manifest that passes here
+// DraconDex-APP's src/db/plugin-manifest.js, so a manifest that passes here
 // is one the app will accept on install. Zero dependencies; run it with
 //   node scripts/validate-manifest.mjs [path/to/dracondex-plugin.json]
 //

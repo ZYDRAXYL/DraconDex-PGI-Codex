@@ -27,7 +27,7 @@
     ],
     "context": ["module"]
   },
-  "dependencies": ["https://github.com/LDKTC/DraconDex-Plugin-Native"],
+  "dependencies": ["https://github.com/ZYDRAXYL/DraconDex-PGI-AINative"],
   "tables": [
     {
       "name": "session",
