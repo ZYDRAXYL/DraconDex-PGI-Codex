@@ -70,7 +70,7 @@ test('ensure() fetches through pluginApi.net and caches into the config table', 
   await C.ensure();
 
   assert.equal(netCalls.length, 1);
-  assert.equal(netCalls[0].url, 'https://raw.githubusercontent.com/LDKTC/DraconDex-Plugin-Native/main/catalog.json');
+  assert.equal(netCalls[0].url, 'https://raw.githubusercontent.com/ZYDRAXYL/DraconDex-PGI-AINative/main/catalog.json');
   assert.equal(pageFetchCalls.length, 0, 'never falls back to the page fetch when pluginApi.net exists');
 
   assert.equal(config.get('app_catalog_json'), JSON.stringify(SAMPLE_CATALOG));
