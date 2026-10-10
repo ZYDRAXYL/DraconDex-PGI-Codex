@@ -3,12 +3,13 @@
 // request at a time. Knows nothing about the DOM — UI.render() is called with
 // the current state and does the drawing.
 //
-// The persistence rule that shapes everything here: a docked panel is reloaded
-// whenever the host re-renders its pane, so the source of truth is the tables,
-// not this object. Both halves of a turn are written the moment they exist —
-// the user's message before the request goes out, the assistant's as soon as
-// the stream ends — so a reload mid-conversation loses nothing but an
-// unfinished reply.
+// The persistence rule that shapes everything here: the page can go away at any
+// moment — a DraconDex 5 side panel is destroyed when it closes or the app
+// quits (and a 4.x host reloaded it on every pane re-render) — so the source of
+// truth is the tables, not this object. Both halves of a turn are written the
+// moment they exist — the user's message before the request goes out, the
+// assistant's as soon as the stream ends — so losing the page mid-conversation
+// loses nothing but an unfinished reply.
 
 const Chat = {
   settings: null,
@@ -16,6 +17,7 @@ const Chat = {
   sessionId: null,
   messages: [],
   moduleContext: null,   // set by the host when permissions.context allows it
+  followPending: false,  // the page changed mid-reply; follow it when the reply ends
   view: 'chat',          // 'chat' | 'settings' | 'sessions'
   sending: false,
   streamText: '',        // the reply as it arrives, before it is persisted
@@ -60,24 +62,44 @@ function currentSession() {
   return Chat.sessions.find((s) => s.id === Chat.sessionId) || null;
 }
 
-// The host can deliver module context after boot (the panel asks for it as
-// soon as it mounts). Only re-target the session if nothing has been said yet
-// — silently moving an in-progress conversation onto another module would be
-// worse than leaving it where the user started it.
+// DraconDex 5 keeps the side panel open across page changes and pushes a new
+// context on every one, so this runs each time the user moves to another
+// module — not once after mount, as on 4.x where the panel closed with its
+// module. Follow the page: show that module's own conversation if it has one,
+// otherwise an empty chat (the first send creates a session tagged with the
+// module). A fresh untagged session nobody has typed in is adopted rather than
+// left behind. Never mid-reply: a stream still writing into the current
+// session finishes there, and the switch happens when it ends (see send()).
+// No module open (context null) keeps whatever is on screen.
 async function setModuleContext(context) {
+  const before = moduleKey();
   Chat.moduleContext = context;
-  if (!context || Chat.messages.length) { UI.render(); return; }
+  if (moduleKey() === before) { UI.render(); return; }
+  if (Chat.sending) { Chat.followPending = true; UI.render(); return; }
+  await followModule();
+}
+
+async function followModule() {
+  Chat.followPending = false;
   const key = moduleKey();
+  if (!key) { UI.render(); return; }
   const existing = Chat.sessions.find((s) => s.module_key === key);
-  if (existing && existing.id !== Chat.sessionId) {
-    await selectSession(existing.id);
+  if (existing) {
+    if (existing.id !== Chat.sessionId) await selectSession(existing.id);
+    else UI.render();
     return;
   }
   const session = currentSession();
-  if (session && !session.module_key && key) {
+  if (session && !session.module_key && !Chat.messages.length) {
     await Store.touchSession(session.id, { module_key: key });
     session.module_key = key;
+    UI.render();
+    return;
   }
+  Chat.sessionId = null;
+  Chat.messages = [];
+  Chat.error = null;
+  Chat.view = 'chat';
   UI.render();
 }
 
@@ -141,7 +163,7 @@ async function send(text) {
   let session = currentSession();
   if (!session) session = await newSession();
 
-  // Persist before sending: if the panel is reloaded while the request is in
+  // Persist before sending: if the panel is closed while the request is in
   // flight, the question is still there to retry.
   const userId = await Store.addMessage(session.id, { role: 'user', content: body });
   Chat.messages.push({ id: userId, session_ref: session.id, role: 'user', content: body, create_at: Store.nowIso() });
@@ -195,6 +217,7 @@ async function send(text) {
   Chat.streamText = '';
   Chat.streamReasoning = '';
   UI.render();
+  if (Chat.followPending) await followModule();
 }
 
 function stop() {
