@@ -1,18 +1,18 @@
 'use strict';
-// Bootstrap for the docked-panel entry (panel.html).
+// Bootstrap for the side-panel entry (panel.html).
 //
 // Two things differ from the standalone window (app.js):
 //
-// 1. The host draws the panel header and its close button, so there is no
-//    title bar here.
+// 1. The host (DraconDex 5's side panel) draws the panel header and its close
+//    button, so there is no title bar here.
 // 2. The panel can ask the host which module is open — but only because the
 //    manifest declares `permissions.context: ["module"]` and the user saw that
 //    at install time. The host replies with null if it was not granted, so
 //    this must work either way.
 //
-// The panel is reloaded whenever DraconDex re-renders its pane, so this runs
-// often and start-up has to be cheap and idempotent. Everything it needs comes
-// back out of the plugin's own tables.
+// The panel starts from scratch every time it is opened (and, on a 4.x host,
+// on every pane re-render), so start-up has to be cheap and idempotent.
+// Everything it needs comes back out of the plugin's own tables.
 
 const panelApi = (window.pluginApi || window.extApi || {}).panel || null;
 
@@ -47,8 +47,8 @@ async function start() {
     root.appendChild(err);
     return;
   }
-  // The host can also push context later — e.g. if it starts sharing it after
-  // the first exchange — so keep listening past boot.
+  // DraconDex 5 pushes a new context on every page change while the panel is
+  // open, so keep listening for the life of the page — the chat follows it.
   panelApi?.onMessage((msg) => {
     if (msg?.type === 'context') ChatActions.setModuleContext(msg.context || null);
   });

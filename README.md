@@ -1,12 +1,12 @@
 # DraconDex-PGI-Codex
 
 A Codex (OpenAI) chat session for
-[DraconDex](https://github.com/ZYDRAXYL/DraconDex-APP), docked in place of the
-Module Inspector.
+[DraconDex](https://github.com/ZYDRAXYL/DraconDex-APP), in DraconDex 5's side panel.
 
-Install it, open any module, and a **🤖** button appears next to the Module
-Inspector toggle. Click it and the Inspector dock is replaced by a chat panel
-scoped to that module. It also runs as a standalone window if you'd rather have
+Install it, open any page, and a **🤖** button appears on the page's address
+row. Click it and a chat panel opens in the side panel beside the page, scoped to
+the module you are on — and it follows you: move to another module and the
+panel switches to that module's conversation. It also runs as a standalone window if you'd rather have
 the room.
 
 This is the OpenAI sibling of
@@ -14,7 +14,9 @@ This is the OpenAI sibling of
 same layout, same panel behaviour, different provider. Both can be installed at
 once; they use different plugin ids and therefore different tables.
 
-> Requires **DraconDex 4.3.0+** for the docked panel. On 4.2.x it still installs
+> Written for **DraconDex 5** (side panel). On **4.3.0–4.x** the panel docks in
+> place of the Module Inspector instead. Requires **4.3.0+** for the panel at all.
+> On 4.2.x it still installs
 > and works as a plain window (Settings → Plugin → Launch) — there is just no
 > button in the main window, because the panel API doesn't exist there yet.
 > **DraconDex 4.8.0+** additionally auto-installs
@@ -161,14 +163,16 @@ auth hosts are declared here and not only the API host.
 | --- | --- |
 | `dracondex-plugin.json` | Manifest: id, files, panel, permissions, table schema. |
 | `index.html` + `app.js` | Standalone-window entry (draws its own title bar). |
-| `panel.html` + `panel.js` | Docked-panel entry; asks the host for module context. |
+| `panel.html` + `panel.js` | Side-panel entry; asks the host for module context and follows the page as v5 pushes new context. |
 | `src/store.js` | The three tables, via `window.pluginApi.table.*`. |
 | `src/provider.js` | Responses API client + both auth modes. |
 | `src/catalog.js` | Fetches/caches AI Native's `catalog.json`; composes the app-context preamble onto the system prompt. Independent of `provider.js` — different origin, own `pluginApi.net` call. |
 | `src/chat.js` | Session and turn state; no DOM. |
 | `src/ui.js` | Rendering. Builds nodes, never HTML strings. |
 | `style.css` | Dark theme matching the app; works at 290px and at 900px. |
-| `scripts/validate-manifest.mjs` | Local manifest check. Not shipped — it isn't in `files`. |
+| `tools/validate-manifest.mjs` | Local manifest check running the app's own `validateManifest()`. Not shipped — it isn't in `files` |
+| `tools/plugin-manifest.cjs` + `plugin-contract.lock.json` | That function: DraconDex-EXE's `plugin-manifest.js`, vendored byte-identical at a pinned release. Never hand-edit; move the pin with `node tools/plugin-contract.mjs --vendor --ref vX.Y.Z`. |
+| `tools/plugin-contract.mjs` | Checks the vendored copy; `--upstream` says whether DraconDex moved past the pin. |
 | `test/provider.test.mjs` | Drives `provider.js` against canned SSE. Not shipped. |
 | `test/catalog.test.mjs` | Drives `catalog.js` against a fake `pluginApi.net`/`Store`/page `fetch`. Not shipped. |
 
@@ -176,17 +180,25 @@ Both entries load the same five `src/` scripts and differ only in chrome.
 
 ### A constraint worth knowing if you fork this
 
-A docked panel is **reloaded whenever DraconDex re-renders its pane** — editing
-a tag on the module is enough. Nothing may live only in a variable. Every
-message is written to the table at the moment it exists (the question before the
-request goes out, the answer as soon as the stream ends), and the panel rebuilds
-itself from the tables on every load. A reply that was still streaming when a
-reload happened is the only thing that can be lost.
+A panel can go away at any moment: DraconDex 5 keeps it open across page
+changes but destroys it when the side panel is closed or the app quits (and a
+4.x host reloaded it on every pane re-render). Nothing may live only in a
+variable. Every message is written to the table at the moment it exists (the
+question before the request goes out, the answer as soon as the stream ends),
+and the panel rebuilds itself from the tables on every load. A reply that was
+still streaming when the panel went away is the only thing that can be lost.
+
+While it is open, DraconDex 5 pushes a new module context on every page
+change, and the chat follows the page: it switches to that module's own
+conversation (or an empty one), never mid-reply — a reply that is still
+streaming finishes in the conversation it started in, then the switch
+happens.
 
 ## Developing
 
 ```bash
-node scripts/validate-manifest.mjs        # same rules the app enforces on install
+node tools/validate-manifest.mjs          # the app's own rules (vendored), first error first
+node tools/plugin-contract.mjs            # the vendored copy matches plugin-contract.lock.json
 node --check app.js panel.js src/*.js
 node --test test/*.test.mjs
 ```

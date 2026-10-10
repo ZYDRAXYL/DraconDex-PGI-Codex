@@ -2,8 +2,8 @@
 // Persistence. Everything this plugin remembers lives in the three tables it
 // declared in dracondex-plugin.json, reached through window.pluginApi.table.*
 // — there is no other storage available to a plugin, and none is wanted:
-// running as a docked panel means the page is reloaded whenever the host
-// re-renders its pane, so anything held only in a variable is gone. Every
+// a DraconDex 5 side panel is destroyed when it closes (and a 4.x host reloaded
+// it on every pane re-render), so anything held only in a variable is gone. Every
 // write here happens at the moment the state changes, not on some later flush.
 //
 // window.extApi is the pre-v4.2.0 alias for the same object; falling back to it

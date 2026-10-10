@@ -1,11 +1,11 @@
-/* These tokens mirror DraconDex's default dark theme (css/tokens.css) so the
+/* These tokens mirror DraconDex's midnight theme (DraconDex-EXE electron/css/themes.css) so the
    plugin doesn't look pasted in; the app does NOT inject its stylesheets into
    plugin windows or panels, so everything this plugin wants lives here.
 
    One stylesheet serves both entries. index.html sets .window-mode (a
    frameless ~900px window with its own title bar); panel.html sets
-   .panel-mode (docked in the Module Inspector slot, ~290px wide by default and
-   resizable 220-500px, header drawn by the host). Rules below are written for
+   .panel-mode (the DraconDex 5 side panel, 300px by default and resizable
+   220-640px, header drawn by the host). Rules below are written for
    the narrow case and relax at the wider one, so the layout never depends on
    which entry loaded it. */
 :root {
@@ -42,7 +42,7 @@ body {
 }
 
 /* The standalone window is frameless, so this bar is the only way to move or
-   close it. The docked panel has no title bar — the host draws that. */
+   close it. The side panel has no title bar — the host draws that. */
 .titlebar {
   display: flex;
   align-items: center;
@@ -303,7 +303,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 .error { border-color: var(--danger); color: var(--danger); }
 code { font-family: ui-monospace, monospace; color: var(--t1); }
 
-/* The standalone window has room to breathe; the docked panel does not. */
+/* The standalone window has room to breathe; the side panel does not. */
 .window-mode .stream { padding: 14px 18px; }
 .window-mode .bubble { max-width: 74%; }
 .window-mode .pane { padding: 14px 18px; max-width: 620px; }

@@ -1,0 +1,19 @@
+{
+  "lockVersion": 1,
+  "source": {
+    "repo": "ZYDRAXYL/DraconDex-EXE",
+    "ref": "v5.1.0"
+  },
+  "vendored": {
+    "tools/plugin-manifest.cjs": {
+      "from": "electron/src/db/plugin-manifest.js",
+      "sha256": "8ab709e32f86e750bf70d5ba535c6efbbed0926d141045c314aa1f85bd67ae22"
+    }
+  },
+  "watched": {
+    "electron/preload-plugin.js": {
+      "sha256": "6722a8413649b4320053a19689ba9559e2ae3b88331c24ae826324a984319a1f",
+      "why": "the window.pluginApi surface — a change means app code and docs that call it need review"
+    }
+  }
+}
